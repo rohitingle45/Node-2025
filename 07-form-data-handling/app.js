@@ -1,93 +1,48 @@
-// form submission in js
 const http = require('http');
 const fs = require('fs');
 const queryString = require('querystring');
 
 http.createServer((req, res) => {
 
-    // ------------------------------  
-    // MARKING: Home Route (Correct)
-    // ------------------------------
-    if (req.url === '/') {
+    if (req.url === '/' && req.method === 'GET') {
         fs.readFile('./form.html', 'utf-8', (error, data) => {
             if (error) {
                 res.writeHead(500, { 'content-type': 'text/plain' });
-                return res.end('error.......');  // ✔️ correct
+                return res.end('error.......');
             }
             res.writeHead(200, { 'content-type': 'text/html' });
-            res.end(data);  // ✔️ correct
+            return res.end(data);   // ❗ MUST return
         });
+        return; // ❗ prevent going ahead
     }
 
     // ------------------------------  
-    // MARKING: Submit Route (Problem Fixed)
+    // Submit Route
     // ------------------------------
-    else if (req.url === '/submit' && req.method === 'POST') {
-
-        let bodyChunks = [];
+    if (req.url === '/submit' && req.method === 'POST') {
+        let body = [];
 
         req.on('data', chunk => {
-            bodyChunks.push(chunk);
+            body.push(chunk);
         });
 
         req.on('end', () => {
-            let rawData = Buffer.concat(bodyChunks).toString();
-            let formData = queryString.parse(rawData);
+            let raw = Buffer.concat(body).toString();
+            let formData = queryString.parse(raw);
 
             console.log("Form Data:", formData);
 
             res.writeHead(200, { 'content-type': 'text/html' });
-            res.end(`<h1>Form Submitted Successfully!</h1>`);  // ✔️ correct
+            return res.end(`<h1>Form Submitted</h1>`);
         });
+        re
+        
     }
 
     // ------------------------------  
-    // MARKING: 404 Route
+    // 404
     // ------------------------------
-    else {
-        res.writeHead(404, { 'content-type': 'text/html' });
-        res.end('<h1>404 Page Not Found</h1>');  // ✔️ correct
-    }
+    res.writeHead(404, { 'content-type': 'text/html' });
+    res.end('<h1>404 Page Not Found</h1>');
 
 }).listen(4000);
-
-/*
-// form submission in js
-const http = require('http');
-const fs = require('fs');
-const queryString = require('querystring');
-http.createServer((req,res)=>{
-    fs.readFile('./form.html','utf-8',(error,data)=>{
-        if(error){
-            res.writeHead(500,{'content-type':'text/plain'});
-            res.end('error.......'); 
-            return;      
-         }
-         else{
-              res.writeHead(200,{'content-type':'text/html'});
-             if(req.url == '/'){
-               res.write(data);
-             }
-             else if(req.url == '/submit'){
-                res.write('<h1>Form is Submitted......</h1>');
-               // collecting form data in chunks(default)
-               const dataBody = [];
-               req.on('data',(chunk)=>{
-                  dataBody.push(chunk);
-               })
-              // processing and converting collected chunks into readable form
-              req.on('end',()=>{
-                let rawData = Buffer.concat(dataBody).toString();
-                let formData = queryString.parse(rawData);
-                console.log(formData);
-              })
-             }
-             else{
-                res.write('<h1>404 page not found</h1>');
-                res.end();
-             }
-         }
-         res.end();
-    })
-}).listen(4000);
-*/
