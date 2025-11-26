@@ -11,14 +11,11 @@ http.createServer((req, res) => {
                 return res.end('error.......');
             }
             res.writeHead(200, { 'content-type': 'text/html' });
-            return res.end(data);   //  MUST return
+            return res.end(data);
         });
-        return; // prevent going ahead
+        return;
     }
 
-    // ------------------------------  
-    // Submit Route
-    // ------------------------------
     if (req.url === '/submit' && req.method === 'POST') {
         let body = [];
 
@@ -32,17 +29,26 @@ http.createServer((req, res) => {
 
             console.log("Form Data:", formData);
 
-            res.writeHead(200, { 'content-type': 'text/html' });
-            return res.end(`<h1>Form Submitted</h1>`);
+            // write file first, then send response
+            fs.writeFile('./file1.txt', formData.username, 'utf-8', (err) => {
+                if (err) {
+                    console.log('Error writing file', err);
+                    res.writeHead(500, { 'content-type': 'text/plain' });
+                    return res.end('Error writing file');
+                }
+
+                console.log('File created successfully');
+
+                // now send response
+                res.writeHead(200, { 'content-type': 'text/html' });
+                return res.end(`<h1>Form Submitted and File Created</h1>`);
+            });
         });
-        re
-        
+        return;
     }
 
-    // ------------------------------  
     // 404
-    // ------------------------------
     res.writeHead(404, { 'content-type': 'text/html' });
     res.end('<h1>404 Page Not Found</h1>');
 
-}).listen(4000);
+}).listen(4000, () => console.log('Server running on port 4000'));
