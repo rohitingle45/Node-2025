@@ -1,0 +1,3 @@
+this is writeFile1 content 
+this is new and fresh content 
+this is new and fresh content
